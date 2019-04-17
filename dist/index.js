@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 
 function _slicedToArray(arr, i) {
   return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest();
@@ -73,8 +74,22 @@ var getButtonsState = function getButtonsState(indx, length) {
   }
 };
 
-function MultiStep(props) {
-  var _useState = useState(getNavStyles(0, props.steps.length)),
+function MultiStep(_ref) {
+  var steps = _ref.steps,
+      allowCrumbClick = _ref.allowCrumbClick,
+      currStep = _ref.currStep,
+      showNavigation = _ref.showNavigation;
+  var currentIndex;
+
+  if (currStep === '___firstKey') {
+    currentIndex = 0;
+  } else {
+    currentIndex = steps.findIndex(function (x) {
+      return x.name === currStep;
+    });
+  }
+
+  var _useState = useState(getNavStyles(currentIndex, steps.length)),
       _useState2 = _slicedToArray(_useState, 2),
       stylesState = _useState2[0],
       setStyles = _useState2[1];
@@ -84,15 +99,15 @@ function MultiStep(props) {
       compState = _useState4[0],
       setComp = _useState4[1];
 
-  var _useState5 = useState(getButtonsState(0, props.steps.length)),
+  var _useState5 = useState(getButtonsState(currentIndex, steps.length)),
       _useState6 = _slicedToArray(_useState5, 2),
       buttonsState = _useState6[0],
       setButtons = _useState6[1];
 
   function setStepState(indx) {
-    setStyles(getNavStyles(indx, props.steps.length));
-    setComp(indx < props.steps.length ? indx : compState);
-    setButtons(getButtonsState(indx, props.steps.length));
+    setStyles(getNavStyles(indx, steps.length));
+    setComp(indx < steps.length ? indx : compState);
+    setButtons(getButtonsState(indx, steps.length));
   }
 
   var next = function next() {
@@ -104,25 +119,27 @@ function MultiStep(props) {
   };
 
   var handleKeyDown = function handleKeyDown(evt) {
-    return evt.which === 13 ? next(props.steps.length) : {};
+    return evt.which === 13 ? next(steps.length) : {};
   };
 
   var handleOnClick = function handleOnClick(evt) {
-    if (evt.currentTarget.value === props.steps.length - 1 && compState === props.steps.length - 1) {
-      setStepState(props.steps.length);
+    if (!allowCrumbClick) return null;
+
+    if (evt.currentTarget.value === steps.length - 1 && compState === steps.length - 1) {
+      setStepState(steps.length);
     } else {
       setStepState(evt.currentTarget.value);
     }
   };
 
   var renderSteps = function renderSteps() {
-    return props.steps.map(function (s, i) {
+    return steps.map(function (s, i) {
       return React.createElement("li", {
         className: 'progtrckr-' + stylesState[i],
         onClick: handleOnClick,
         key: i,
         value: i
-      }, React.createElement("em", null, i + 1), React.createElement("span", null, props.steps[i].name));
+      }, React.createElement("em", null, i + 1), React.createElement("span", null, steps[i].name));
     });
   };
 
@@ -131,8 +148,8 @@ function MultiStep(props) {
     onKeyDown: handleKeyDown
   }, React.createElement("ol", {
     className: "progtrckr"
-  }, renderSteps()), props.steps[compState].component, React.createElement("div", {
-    style: props.showNavigation ? {} : {
+  }, renderSteps()), steps[compState].component, React.createElement("div", {
+    style: showNavigation ? {} : {
       display: 'none'
     }
   }, React.createElement("button", {
@@ -147,8 +164,20 @@ function MultiStep(props) {
     onClick: next
   }, "Next")));
 }
+
+MultiStep.propTypes = {
+  showNavigation: PropTypes.bool,
+  allowCrumbClick: PropTypes.bool,
+  currStep: PropTypes.string,
+  steps: PropTypes.arrayOf(PropTypes.shape({
+    name: PropTypes.string,
+    component: PropTypes.node
+  })).isRequired
+};
 MultiStep.defaultProps = {
-  showNavigation: true
+  showNavigation: true,
+  allowCrumbClick: true,
+  currStep: '___firstKey'
 };
 
 export default MultiStep;

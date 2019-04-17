@@ -1,16 +1,15 @@
 {
-  "name": "react-multistep",
-  "version": "3.6.4",
-  "description": "Responsive ReactJS multistep form component",
+  "name": "react-stepped-form",
+  "version": "0.0.1",
+  "description": "Robust Multi-Step Form For React",
   "main": "index.js",
   "license": "MIT",
   "author": {
-    "name": "@djidja8",
-    "email": "srdjan@timok.com",
-    "url": "https://github.com/srdjan"
+    "name": "Joseph Rex",
+    "url": "https://josephrex.me"
   },
   "keywords": [
-    "react, reactjs, responsive, component"
+    "react, reactjs, form, component, multistep, multipage"
   ],
   "repository": {
     "type": "git",
@@ -42,8 +41,11 @@
   },
   "scripts": {
     "build:dev": "NODE_ENV=development rollup -c && cp -f ../dist/* ../example/node_modules/react-multistep/",
-    "build:prod": "NODE_ENV=production rollup -c && cp -f package.json ../dist/"
+    "build:prod": "NODE_ENV=production rollup -c && cp -f package.json ../dist/",
+    "publish": "npm  publish ../dist"
   },
   "dependencies": {
+    "prop-types": "^15.7.2",
+    "styled-components": "^4.2.0"
   }
 }

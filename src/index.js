@@ -1,6 +1,5 @@
-"use strict";
-
-import React, {useState} from 'react'
+import React, { useState } from 'react'
+import PropTypes from 'prop-types';
 
 const getNavStyles = (indx, length) => {
   let styles = []
@@ -35,33 +34,41 @@ const getButtonsState = (indx, length) => {
   }
 }
 
-export default function MultiStep(props) {
-  const [stylesState, setStyles] = useState(getNavStyles(0, props.steps.length))
+function MultiStep({ steps, allowCrumbClick, currStep, showNavigation }) {
+  let currentIndex;
+  if(currStep === '___firstKey') {
+    currentIndex = 0;
+  } else {
+    currentIndex = steps.findIndex(x => x.name === currStep);
+  }
+
+  const [stylesState, setStyles] = useState(getNavStyles(currentIndex, steps.length))
   const [compState, setComp] = useState(0)
-  const [buttonsState, setButtons] = useState(getButtonsState(0, props.steps.length))
-  
+  const [buttonsState, setButtons] = useState(getButtonsState(currentIndex, steps.length))
+
   function setStepState(indx) {
-    setStyles(getNavStyles(indx, props.steps.length))
-    setComp(indx < props.steps.length? indx : compState)
-    setButtons(getButtonsState(indx, props.steps.length))
+    setStyles(getNavStyles(indx, steps.length))
+    setComp(indx < steps.length? indx : compState)
+    setButtons(getButtonsState(indx, steps.length))
   }
 
   const next = () => setStepState(compState + 1)
-  
+
   const previous = () => setStepState((compState > 0) ? compState - 1 : compState)
 
-  const handleKeyDown = (evt) => evt.which === 13 ? next(props.steps.length) : {}
+  const handleKeyDown = (evt) => evt.which === 13 ? next(steps.length) : {}
 
   const handleOnClick = (evt) => {
-    if (evt.currentTarget.value === props.steps.length - 1 && compState === props.steps.length - 1) {
-      setStepState(props.steps.length)
+    if(!allowCrumbClick) return;
+    if (evt.currentTarget.value === steps.length - 1 && compState === steps.length - 1) {
+      setStepState(steps.length)
     } else {
       setStepState(evt.currentTarget.value)
     }
   }
 
-  const renderSteps = () => 
-    props.steps.map((s, i) => (
+  const renderSteps = () =>
+    steps.map((s, i) => (
       <li
         className={'progtrckr-' + stylesState[i]}
         onClick={handleOnClick}
@@ -69,7 +76,7 @@ export default function MultiStep(props) {
         value={i}
       >
         <em>{i + 1}</em>
-        <span>{props.steps[i].name}</span>
+        <span>{steps[i].name}</span>
       </li>
     ))
 
@@ -78,8 +85,8 @@ export default function MultiStep(props) {
         <ol className='progtrckr'>
           {renderSteps()}
         </ol>
-        {props.steps[compState].component}
-        <div style={props.showNavigation ? {} : { display: 'none' }}>
+        {steps[compState].component}
+        <div style={showNavigation ? {} : { display: 'none' }}>
           <button
             style={buttonsState.showPreviousBtn ? {} : { display: 'none' }}
             onClick={previous}
@@ -98,6 +105,20 @@ export default function MultiStep(props) {
   )
 }
 
+MultiStep.propTypes = {
+  showNavigation: PropTypes.bool,
+  allowCrumbClick: PropTypes.bool,
+  currStep: PropTypes.string,
+  steps: PropTypes.arrayOf(PropTypes.shape({
+    name: PropTypes.string,
+    component: PropTypes.node
+  })).isRequired
+};
+
 MultiStep.defaultProps = {
-  showNavigation: true
+  showNavigation: true,
+  allowCrumbClick: true,
+  currStep: '___firstKey',
 }
+
+export default MultiStep;
